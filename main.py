@@ -1,4 +1,5 @@
 import pygame
+import random
 
 #initialize pygame
 pygame.init()
@@ -14,15 +15,28 @@ pygame.display.set_icon(gameicon)
 
 #adding player to the game
 playericon = pygame.image.load("spaceship.png")
-
 #initial coordinates to the position of player
 playerX = 568   #1200/2 - 64/2; 64 is the pixel size of playericon
 playerY = 440   
 playerX_change = 0
 
+
+#adding player to the game
+enemyicon = pygame.image.load("alien.png")
+#initial coordinates to the position of enemy
+enemyX = random.randint(0,1136)
+enemyY = random.randint(0,300)   
+enemyX_change = 0
+
+#creating a player
 def player(x,y):
     #draws the image of player at the given coordinates
     screen.blit(playericon, (x,y))
+    
+#creating an enemy
+def enemy(x,y):
+    #draws the image of player at the given coordinates
+    screen.blit(enemyicon, (x,y))
 
 running = True
 while running:
@@ -61,7 +75,9 @@ while running:
         
     
     playerX += playerX_change
-    player(playerX,playerY)          
-
+    player(playerX,playerY)
+    
+    enemy(enemyX,enemyY)
+    
     #update the screen to reflect the changes made in this while loop
     pygame.display.update()
