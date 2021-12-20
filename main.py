@@ -1,4 +1,6 @@
 import pygame
+from pygame import mixer
+
 import random
 import math
 
@@ -21,11 +23,9 @@ font = pygame.font.Font('freesansbold.ttf',32)
 textX = 10
 textY = 10
 
-#adding score to the screen
-def show_score(x,y):
-    score = font.render("Score : " + str(score_value), True, (255,255,255))
-    screen.blit(score, (x,y))
-    
+#game over
+game_over_font = pygame.font.Font('freesansbold.ttf',64)
+
 
 #adding player to the game
 playericon = pygame.image.load("spaceship.png")
@@ -66,6 +66,11 @@ bulletY_change = 1
 bullet_state = "ready"
 
 
+#adding score to the screen
+def show_score(x,y):
+    score = font.render("Score : " + str(score_value), True, (255,255,255))
+    screen.blit(score, (x,y))
+
 #creating a player
 def player(x,y):
     #draws the image of player at the given coordinates
@@ -84,7 +89,6 @@ def fire_bullet(x,y):
     #the bullet is coming out from the front centre of the film 
     screen.blit(bulleticon,(x+16,y+10))
     
-
 #checking for collision
 def isCollision(enemyX,enemyY,bulletX,bulletY):
     distance = math.sqrt( math.pow(enemyX - bulletX,2) + math.pow(enemyY - bulletY,2) )    
@@ -93,8 +97,10 @@ def isCollision(enemyX,enemyY,bulletX,bulletY):
     else:
         return False
 
-
-
+#game over condition
+def game_over():
+    game_over_text = game_over_font.render("OOPS! GAME OVER!", True, (255,255,255))
+    screen.blit(game_over_text, (200,250))
 
 running = True
 while running:
@@ -124,6 +130,8 @@ while running:
                 if bullet_state == "ready":         #shouldnt be able to fire a bullet once youve already fired a bullet
                     bulletX = playerX
                     fire_bullet(bulletX,bulletY)
+                    bullet_sound = mixer.Sound("laser.wav")
+                    bullet_sound.play()
         
         #checks whether the keystroke has been released
         if event.type == pygame.KEYUP:
@@ -141,6 +149,13 @@ while running:
     
     #for every enemy-
     for i in range(no_of_enemies):
+    
+        #GAME OVER condition
+        if enemyY[i]>440 :
+            for j in range(no_of_enemies):
+                enemyY[j] = 1000
+            game_over()
+            break
 
         #adding boundaries to the enemy movement
         #736 = 800-64(size of enemyicon)
@@ -160,6 +175,8 @@ while running:
             score_value += 10
             enemyX[i] = random.randint(0,736)
             enemyY[i] = random.randint(32,300)
+            bullet_hit = mixer.Sound("explosion.wav")
+            bullet_hit.play()
         
         #draw enemy on screen
         enemy(enemyX[i],enemyY[i],i)
