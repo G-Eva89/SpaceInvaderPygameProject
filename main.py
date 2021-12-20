@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 
 #initialize pygame
 pygame.init()
@@ -14,11 +15,13 @@ gameicon = pygame.image.load("spacetravel.png")
 pygame.display.set_icon(gameicon)
 background = pygame.image.load("background.jpg")
 
+#player score
+score = 0
 
 #adding player to the game
 playericon = pygame.image.load("spaceship.png")
 #initial coordinates to the position of player
-playerX = 364   #1200/2 - 64/2; 64 is the pixel size of playericon
+playerX = 364   #800/2 - 64/2; 64 is the pixel size of playericon
 playerY = 480   
 playerX_change = 0
 
@@ -62,6 +65,13 @@ def fire_bullet(x,y):
     screen.blit(bulleticon,(x+16,y+10))
     
 
+#checking for collision
+def isCollision(enemyX,enemyY,bulletX,bulletY):
+    distance = math.sqrt( math.pow(enemyX-bulletX,2) + math.pow(enemyY-bulletY,2) )    
+    if distance < 27:
+        return True
+    else:
+        return False
 running = True
 while running:
     
@@ -87,7 +97,7 @@ while running:
             
             #check if space is pressed to fire a bullet
             if event.key == pygame.K_SPACE:
-                if bullet_state is "ready":         #shouldnt be able to fire a bullet once youve already fired a bullet
+                if bullet_state == "ready":         #shouldnt be able to fire a bullet once youve already fired a bullet
                     bulletX = playerX
                     fire_bullet(bulletX,bulletY)
         
@@ -98,7 +108,7 @@ while running:
     
     
     #adding boundaries to the player movement
-    #1136 = 1200-64(size of playericon)
+    #1136 = 800-64(size of playericon)
     playerX += playerX_change
     if playerX<=0:
         playerX=0
@@ -106,7 +116,7 @@ while running:
         playerX=736
     
     #adding boundaries to the enemy movement
-    #1136 = 1200-64(size of enemyicon)
+    #1136 = 800-64(size of enemyicon)
     enemyX += enemyX_change
     if enemyX<=0:
         enemyX_change=0.3
@@ -120,9 +130,19 @@ while running:
         bulletY = 480
         bullet_state = "ready"
     
-    if bullet_state is "fire":          #once the bullet is fired, it should move up
+    if bullet_state == "fire":          #once the bullet is fired, it should move up
         fire_bullet(bulletX,bulletY)
         bulletY -= bulletY_change
+        
+    #check whether the bullet has collided with the enemy
+    collision = isCollision(enemyX,enemyY,bulletX,bulletY)
+    if collision:
+        bulletY = 480           #reset bullet
+        bullet_state = "ready"
+        score += 10
+        print(score)
+        enemyX = random.randint(0,736)
+        enemyY = random.randint(0,300)
     
     
     player(playerX,playerY)   
